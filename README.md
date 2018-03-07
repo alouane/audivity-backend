@@ -1,4 +1,4 @@
-Slim Starter
+Audivity Backend
 ============
 
 > Based on the [Slim 3 Skeleton](https://github.com/slimphp/Slim-Skeleton).
@@ -7,7 +7,6 @@ Additional features:
 
 * JWT support
 * cache support for arbitrary data
-* examples for a few controllers (home, resource, login, stream file)
 * helper composer commands for testing, migrations, seeds, etc.
 * simple queries using EasyDB and Latitude - basically build queries easily without hydration or model classes
 * support for `.env` file
@@ -26,27 +25,3 @@ Additional packages:
 * fzaninotto/faker
 * slim/http-cache
 * phpfastcache/phpfastcache
-
-### Sample Env
-
-Copy the contents below into a `.env` file at the root of the project:
-
-```
-APP_ENV=local
-APP_NAME=slim-app
-APP_URL=slim.localhost
-APP_DEBUG=true
-JWT_SECRET=supersecretdefaultkeyyoushouldnotcommittogithub
-# used for monolog critical hook - can be empty
-SLACK_WEBHOOK=https://hooks.slack.com/services/SOME/SLACK/CRAZY-URL
-DB_ADAPTER=mysql
-DB_HOST=localhost
-DB_NAME=testing_slim
-DB_USER=root
-DB_PASS=root
-DB_PORT=3306
-DB_CHARSET=utf8mb4
-
-CACHE_DRIVER=files
-CACHE_TTL=120
-```
