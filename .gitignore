@@ -3,3 +3,8 @@
 
 #logs
 /logs
+
+#env
+.env
+
+.gitignore
