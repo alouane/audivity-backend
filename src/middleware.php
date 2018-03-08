@@ -39,3 +39,6 @@ $app->add(new \Slim\Middleware\JwtAuthentication([
             ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 ]));
+
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept"); 

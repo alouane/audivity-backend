@@ -8,13 +8,16 @@ $app->get('/about', Application\Controller\HomeController::class . ':about');
 // $app->get('/[{name}]', Application\Controller\HomeController::class . ':index');
 
 //Register client blog post url
-$app->post('/url', Application\Controller\RegisterController::class . ':anonyme_url');
+$app->post('/user/url', Application\Controller\RegisterController::class . ':anonyme_url');
 
 //Register email & name of the client linked to a RequestID(blog post url ID)
-$app->post('/register_profile', Application\Controller\RegisterController::class . ':register_profile');
+$app->post('/user/register_profile', Application\Controller\RegisterController::class . ':register_profile');
 
 //Get audio samples for a specific request ID
-$app->get('/sample_audios', Application\Controller\AudioController::class . ':sample_audios');
+$app->get('/audio/sample_audios', Application\Controller\AudioController::class . ':sample_audios');
 
 //Save user's preferd audio sample
-$app->get('/preferd_audio_sample', Application\Controller\AudioController::class . ':preferd_audio_sample');
+$app->get('/audio/preferd_audio_sample', Application\Controller\AudioController::class . ':preferd_audio_sample');
+
+//Get audio
+$app->get('/audio/get', Application\Controller\AudioController::class . ':get');

@@ -96,7 +96,7 @@ class BaseModel
             ->where(Conditions::make($this->primary_key . ' IN ?', ValueList::make($ids)));
     }
 
-    public function find(int $id) : array
+    public function find(int $id)
     {
         return $this->findAll([$id])->limit(1);
     }
@@ -143,16 +143,27 @@ class BaseModel
 
     #Encode id
     public function EncodeID(string $id){
-        $key = base64_encode(hexdec($id));
+        $key = base64_encode(sprintf("%X", $id));
         $key = str_replace('+', '-', $key);
         $key = str_replace('/', '_', $key);
+        $key = str_replace('=', '', $key);
+
         return $key;
     }
 
     #Decode key
     public function DecodeKey($key){
-        $key = str_replace('-', '+', $key);
-        $key = str_replace('_', '/', $key);
-        return hexdec(base64_decode($key));
+        $key = $this->format_key($key);
+       $key = str_replace('-', '+', $key);
+       $key = str_replace('_', '/', $key);
+       return hexdec(base64_decode($key));
+     }
+
+    #format key
+    public function format_key($key){
+        $char_to_add = 4 - (strlen($key) % 4);
+        if($char_to_add == 1) $key .= '=';
+        else if($char_to_add == 2) $key .= '==';
+        return $key;
      }
 }
