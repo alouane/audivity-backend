@@ -99,8 +99,8 @@ class AudioController extends BaseController
         $req_id = $urlR->DecodeKey($rkey);
         $selected_audio = $urlR->DecodeKey($selected_audio);
 
-        #Add new record to DB
-        $insert_id = $urlR->update_profile([
+        #Update profile
+        $urlR->update_profile([
             'preferred_audio' => $selected_audio
         ], $req_id);
         
@@ -109,4 +109,55 @@ class AudioController extends BaseController
         ]);
 
     }
+
+    #Select user dissatisfaction
+    public function dissatisfaction($request, $response, $args)
+    {
+        #Init UrlRequest model
+        $urlR = new UrlRequest();
+        
+        $body = $request->getParsedBody();
+
+        #Get request rkey, goal & interests
+        $rkey = $body['rkey'];
+        $goal = $body['goal'];
+        $interests = $body['interests'];
+
+        #Decode rKey & selected audio key
+        $req_id = $urlR->DecodeKey($rkey);
+
+        #Update profile
+        $urlR->update_profile([
+            'dissatisfaction_goal' => $goal,
+            'dissatisfaction_interests' => $interests,
+        ], $req_id);
+        
+        return $response->withJson([
+            'status' => 1
+        ]);
+
+    }
+
+#User join action
+public function join($request, $response, $args)
+{
+    #Init UrlRequest model
+    $urlR = new UrlRequest();
+
+    #Get request
+    $rkey = $request->getParam('rkey');
+
+    #Decode rKey
+    $req_id = $urlR->DecodeKey($rkey);
+
+    #Update profile
+    $urlR->update_profile([
+        'join_action' => 1
+    ], $req_id);
+    
+    return $response->withJson([
+        'status' => 1
+    ]);
+
+}
 }

@@ -19,5 +19,11 @@ $app->get('/audio/sample_audios', Application\Controller\AudioController::class 
 //Save user's preferd audio sample
 $app->get('/audio/preferd_audio_sample', Application\Controller\AudioController::class . ':preferd_audio_sample');
 
+//Save user's dissatisfaction
+$app->post('/audio/dissatisfaction', Application\Controller\AudioController::class . ':dissatisfaction');
+
 //Get audio
 $app->get('/audio/get', Application\Controller\AudioController::class . ':get');
+
+//User join
+$app->get('/audio/join', Application\Controller\AudioController::class . ':join');
