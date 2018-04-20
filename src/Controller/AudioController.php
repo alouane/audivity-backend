@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * @author: ALOUANE Nour-Eddine
+ *
+ * @version 0.1
+ *
+ * @email: alouane00@gmail.com
+ * @date: 14/03/2018
+ * @company: Audivity 
+ * @country: Morocco 
+ * Copyright (c) 2018-2019 Audivity
+ */
+
 namespace Application\Controller;
 
 use Psr\Container\ContainerInterface;
@@ -18,6 +30,68 @@ class AudioController extends BaseController
         {
             $this->container = $container;
         }
+
+     #Upload an audio file
+     public function upload($request, $response, $args)
+     {
+         #Init UrlRequest model
+         $audio = new Audio();
+         $utils = new UtilsController();
+
+         #Init body
+         $body = $request->getParsedBody();
+
+         if (!isset($_FILES['file'])) {
+            $status = 0;
+        }
+        else{
+
+            #Decode key
+            $id = $audio->DecodeKey($body['key']);
+
+            #Add new record to DB
+            $insert_id = $audio->new([
+                'title' => $body['title'],
+                'description' => $body['description'],
+                'theme' => "",
+                'applicant_name' => $$body['name'],
+                'req_id' => $id
+            ]);
+
+             //Encode ID
+             $insert_id = $audio->EncodeID($insert_id);
+
+             //get uploaded image
+             $temp_image = $_FILES['file']['tmp_name']; // full size image
+             $file_name = $_FILES['file']['name'];
+             $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+ 
+             //get random file name
+             $origine_file = getenv("TEMP_AUDIO_FILES").$insert_id.".mp3";
+ 
+             //move the file to temp folder
+             move_uploaded_file($temp_image, $origine_file);
+ 
+             #check if file exist
+             if(is_file($origine_file)){
+                 #Chmod audio
+                 chmod($origine_file, 0777);
+                 //send to s3
+                 $utils->copytos3($origine_file, getenv("S3_AUDIO_PATH").$insert_id.".mp3");
+
+                 unlink($origine_file);
+              }
+
+            $status = 1;
+        }
+
+         
+
+         return $response->withJson([
+             'status' => $status
+         ]);
+ 
+     }
 
     #Get audio => it could be a playlist too
     public function get($request, $response, $args)
@@ -40,8 +114,8 @@ class AudioController extends BaseController
          foreach ($audios as &$s_audio) {
             $s_audio->akey = $audio->EncodeID($s_audio->id);
             $s_audio->url = getenv('CDN').getenv('AUDIO_PATH').$s_audio->akey.".mp3";
-            $s_audio->banner = "https://cdn2.jazztimes.com/2015/05/spotify-logo-primary-horizontal-dark-background-rgb_0-800x361.jpg";
-            $s_audio->channel =  "Ancient Astronauts";
+            $s_audio->banner = "https://embed.audivity.com/img/logo-audivity.jpg";
+            $s_audio->channel =  $s_audio->theme;
             $s_audio->album =  $s_audio->description;
             unset($s_audio->id);
             unset($s_audio->req_id);
@@ -54,7 +128,7 @@ class AudioController extends BaseController
 
     }
 
-    #Insert new anonyme request
+    #Get audio samples
     public function sample_audios($request, $response, $args)
     {
         #Init audios
@@ -138,26 +212,64 @@ class AudioController extends BaseController
 
     }
 
-#User join action
-public function join($request, $response, $args)
-{
-    #Init UrlRequest model
-    $urlR = new UrlRequest();
+    #User join action
+    public function join($request, $response, $args)
+    {
+        #Init UrlRequest model
+        $urlR = new UrlRequest();
 
-    #Get request
-    $rkey = $request->getParam('rkey');
+        #Get request
+        $rkey = $request->getParam('rkey');
 
-    #Decode rKey
-    $req_id = $urlR->DecodeKey($rkey);
+        #Decode rKey
+        $req_id = $urlR->DecodeKey($rkey);
 
-    #Update profile
-    $urlR->update_profile([
-        'join_action' => 1
-    ], $req_id);
-    
-    return $response->withJson([
-        'status' => 1
-    ]);
+        #Update profile
+        $urlR->update_profile([
+            'join_action' => 1
+        ], $req_id);
+        
+        return $response->withJson([
+            'status' => 1
+        ]);
 
-}
+    }
+
+    #Encode id
+    public function encode($request, $response, $args)
+    {
+        #Init UrlRequest model
+        $urlR = new UrlRequest();
+
+        #Get id
+        $id = $request->getParam('id');
+
+        #Encode id
+        $ukey = $urlR->EncodeID($id);
+
+        
+        return $response->withJson([
+            'ukey' => $ukey
+        ]);
+
+    }
+
+    #Decode id
+    public function decode($request, $response, $args)
+    {
+        #Init UrlRequest model
+        $urlR = new UrlRequest();
+
+        #Get ukey
+        $akey = $request->getParam('akey');
+
+        #Decode ukey
+        $id = $urlR->DecodeKey($akey);
+
+        
+        return $response->withJson([
+            'id' => $id
+        ]);
+
+    }
 }
