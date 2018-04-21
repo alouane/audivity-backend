@@ -38,9 +38,13 @@ class RegisterController extends BaseController
         $body = $request->getParsedBody();
         #Init UrlRequest model
         $urlR = new UrlRequest();
+
         #Add new record to DB
         $insert_id = $urlR->new([
             'url' => $body['url'],
+            'gender' => $body['gender'],
+            'age' => $body['age'],
+            'industry' => $body['industry'],
         ]);
         #Encode request ID
         $key = $urlR->EncodeID($insert_id);
