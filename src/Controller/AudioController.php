@@ -39,7 +39,7 @@ class AudioController extends BaseController
      public function upload($request, $response, $args)
      {
          #Init MIN_AUDIOS
-         $MIN_AUDIOS = 0;
+         $MIN_AUDIOS = 3;
          
          #Init UrlRequest model
          $audio = new Audio();
@@ -49,60 +49,60 @@ class AudioController extends BaseController
          #Init body
          $body = $request->getParsedBody();
 
-        //  if (!isset($_FILES['file'])) {
-        //     $status = 0;
-        // }
-        // else{
+         if (!isset($_FILES['file'])) {
+            $status = 0;
+        }
+        else{
 
-        //     #Decode key
-        //     $id = $audio->DecodeKey($body['key']);
+            #Decode key
+            $id = $audio->DecodeKey($body['key']);
 
-        //     #Add new record to DB
-        //     $insert_id = $audio->new([
-        //         // 'title' => $body['title'],
-        //         'description' => $body['description'],
-        //         'theme' => "",
-        //         'applicant_name' => $$body['name'],
-        //         'req_id' => $id
-        //     ]);
+            #Add new record to DB
+            $insert_id = $audio->new([
+                // 'title' => $body['title'],
+                'description' => $body['description'],
+                'theme' => "",
+                'applicant_name' => $body['name'],
+                'req_id' => $id
+            ]);
 
-        //      //Encode ID
-        //      $insert_id = $audio->EncodeID($insert_id);
+             //Encode ID
+             $insert_id = $audio->EncodeID($insert_id);
 
-        //      //get uploaded image
-        //      $temp_image = $_FILES['file']['tmp_name']; // full size image
-        //      $file_name = $_FILES['file']['name'];
-        //      $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+             //get uploaded image
+             $temp_image = $_FILES['file']['tmp_name']; // full size image
+             $file_name = $_FILES['file']['name'];
+             $ext = pathinfo($file_name, PATHINFO_EXTENSION);
  
-        //      //get random file name
-        //      $origine_file = getenv("TEMP_AUDIO_FILES").$insert_id.".mp3";
+             //get random file name
+             $origine_file = getenv("TEMP_AUDIO_FILES").$insert_id.".mp3";
  
-        //      //move the file to temp folder
-        //      move_uploaded_file($temp_image, $origine_file);
+             //move the file to temp folder
+             move_uploaded_file($temp_image, $origine_file);
  
-        //      #check if file exist
-        //      if(is_file($origine_file)){
-        //          #Chmod audio
-        //          chmod($origine_file, 0777);
-        //          //send to s3
-        //          $utils->copytos3($origine_file, getenv("S3_AUDIO_PATH").$insert_id.".mp3");
+             #check if file exist
+             if(is_file($origine_file)){
+                 #Chmod audio
+                 chmod($origine_file, 0777);
+                 //send to s3
+                 $utils->copytos3($origine_file, getenv("S3_AUDIO_PATH").$insert_id.".mp3");
 
-        //          unlink($origine_file);
-        //       }
+                 unlink($origine_file);
+              }
 
             $status = 1;
 
             #Check if samples number is higher than MIN_AUDIOS
             $audios = $audio->findByReqID($id)->raw();
             
-            if(sizeof($audios) >= $MIN_AUDIOS){
+            #Get request url data
+            $request_data = $urlR->find($id)->raw()[0];
+
+            if(sizeof($audios) >= $MIN_AUDIOS && $request_data->sample_email_sent != 1){
                 #We need to send email to the client, saying that the samples are ready
                 #Get client's email & name
-                $email = $urlR->find($id)->raw()[0]->email;
-                $name = $urlR->find($id)->raw()[0]->name;
-
-                #Init email text
-                $message = "Hi $name, \n We have professionally narrated you blog, open this link to listen to the fresh samples: \n https://audivity.com/audioSamples/".$body['key'];
+                $email = $request_data->email;
+                $name =  $request_data->name;
 
                 #Send email
                 $headers = array (
@@ -121,24 +121,27 @@ class AudioController extends BaseController
 
                 // Create an SMTP client.
                 $mail = Mail::factory('smtp', $smtpParams);
-        
-                $encrypted_token= $this->sign_encode($email);
-        
+                
                 #Init body
-                $body .= "Dear $name,\n \n \n";
-                $body.= "We have professionally narrated you blog, open this link to listen to the fresh samples: \n \n \n";
-                $body.= "https://audivity.com/audioSamples/".$body['key'];
-                $body.= "\n \n \n";
-                $body.= "Regards,\n";
-                $body.= "The Audivity Team \n";
-                $body.= "audivity.com \n";
+                $message .= "Dear $name,\n \n \n";
+                $message.= "We have professionally narrated you blog, open this link to listen to the fresh samples: \n \n \n";
+                $message.= "https://audivity.com/audioSamples/".$body['key'];
+                $message.= "\n \n \n";
+                $message.= "Regards,\n";
+                $message.= "The Audivity Team \n";
+                $message.= "audivity.com \n";
                 
                 // Send the email.
-                $result = $mail->send($email, $headers, $body);
+                $result = $mail->send($email, $headers, $message);
         
                 if (PEAR::isError($result)) $status = "0: ".$result->getMessage();
+
+                #Update sample email sent status
+                $urlR->update_profile([
+                    'sample_email_sent' => 1
+                ], $id);
             }
-        // }
+        }
 
          return $response->withJson([
              'status' => $status

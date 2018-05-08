@@ -57,7 +57,7 @@ class RegisterController extends BaseController
     }
 
     #Update request infos => name & email
-    public function register_profile($request, $response, $args)
+    public function register_profile_beta($request, $response, $args)
     {
         $body = $request->getParsedBody();
         #Init UrlRequest model
@@ -68,6 +68,7 @@ class RegisterController extends BaseController
         $insert_id = $urlR->update_profile([
             'email' => $body['email'],
             'name' => $body['name'],
+            'company' => $body['company'],
         ], $id);
         
         return $response->withJson([
@@ -102,7 +103,7 @@ class RegisterController extends BaseController
      }
 
     #Update request infos => name & email => Create upwork job
-    public function register_profile_beta($request, $response, $args)
+    public function register_profile($request, $response, $args)
     {
         $_SESSION['access_token'] = "322abbd63af198f66b64f23975affbcf";
         $_SESSION['access_secret'] = "9001823813df7be5";
@@ -140,6 +141,7 @@ class RegisterController extends BaseController
         $urlR->update_profile([
             'email' => $body['email'],
             'name' => $body['name'],
+            'company_name' => $body['company']
         ], $id);
 
         #Get Request url infos
@@ -151,7 +153,7 @@ class RegisterController extends BaseController
           "buyer_team__reference" => "4500052",
           "title" => "New ".$ReqUrl->company_name." Podcast - Narration",
           "job_type" => "hourly",
-          "description" => "Audivity is offering an exclusive opportunity to narrate a ".$ReqUrl->company_name." articles. We are looking for an artist ".$ReqUrl->gender." between ".$ReqUrl->age." years of. \n \n Requirements/Suggestions: \n 1) Knows a thing or two about ".$ReqUrl->industry." industry \n 2) Experience in conveying info-heavy content (podcasts/ radio/ announcements/ voice-over) \n 3) Ability to do professional audio editing (cut, mix, clean up) - not required but desired. \n \n Your goal should be to convet this specific article ".$ReqUrl->url." in an engaging and informative way. We are looking for a creative way to make this informational audio content compelling. Share they key details and focus on driving to point home. Podcasting is an art so take it from here and feel free to find your own pace, tone. Do change article structure as you see fit so listeners digest the message and come back for more. \n \n We do not require/request you to submit a sample of your narration. However, you should know that most of our chosen voice over artists  (92%) send an edited 10-30 second narration with a custom audio bed. \n \n A sample audition should be specific to this article and does make a difference. If you decide to do so, upload your Mp3 (Mp3 only)  sample here https://audivity.com/upload_audio/".$body['key'].". Please limit your application to a brief memo and a 10-30 edited audition with intro to the content and your name if you wish to do so. \n \n Depending on the success of this narration, you will be chosen to consistently narrate articles featured at ".$ReqUrl->company_name.". Stay tuned, Audivity has many more professional narration projects coming up exclusively through Upwork.",
+          "description" => "Audivity is offering an exclusive opportunity to narrate a ".$ReqUrl->company_name." articles. We are looking for an artist ".$ReqUrl->gender." between ".$ReqUrl->age." years of. \n \n Requirements/Suggestions: \n 1) Knows a thing or two about ".$ReqUrl->industry." industry \n 2) Experience in conveying info-heavy content (podcasts/ radio/ announcements/ voice-over) \n 3) Ability to do professional audio editing (cut, mix, clean up) - not required but desired. \n \n Your goal should be to convet this specific article ".$ReqUrl->url." in an engaging and informative way. We are looking for a creative way to make this informational audio content compelling. Share they key details and focus on driving to point home. Podcasting is an art so take it from here and feel free to find your own pace, tone. Do change article structure as you see fit so listeners digest the message and come back for more. \n \n We do not require/request you to submit a sample of your narration. However, you should know that most of our chosen voice over artists  (92%) send an edited 10-30 second narration with a custom audio bed. \n \n A sample audition should be specific to this article and does make a difference. If you decide to do so, upload your Mp3 (Mp3 only)  sample here https://audivity.com/UploadAudio/".$body['key'].". Please limit your application to a brief memo and a 10-30 edited audition with intro to the content and your name if you wish to do so. \n \n Depending on the success of this narration, you will be chosen to consistently narrate articles featured at ".$ReqUrl->company_name.". Stay tuned, Audivity has many more professional narration projects coming up exclusively through Upwork.",
           "visibility" => "invite-only", //invite-only
           "category2" => "Design & Creative",
           "subcategory2" => "Audio Production",
