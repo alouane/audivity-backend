@@ -39,7 +39,7 @@ class AudioController extends BaseController
      public function upload($request, $response, $args)
      {
          #Init MIN_AUDIOS
-         $MIN_AUDIOS = 3;
+         $MIN_AUDIOS = 5;
          
          #Init UrlRequest model
          $audio = new Audio();

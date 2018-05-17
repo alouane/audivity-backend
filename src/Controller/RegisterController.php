@@ -14,10 +14,14 @@
 
 namespace Application\Controller;
 
+require_once 'Mail.php';
+
 use Psr\Container\ContainerInterface;
 use Application\Models\UrlRequest;
 use Upwork\API\Client;
 use Upwork\API\Routers\Hr\Jobs;
+use \Mail;
+use \PEAR;
 
 class RegisterController extends BaseController
 {
@@ -174,6 +178,46 @@ class RegisterController extends BaseController
         }
         
 
+        return $response->withJson([
+            'status' => 1
+        ]);
+    }
+
+    #Contact us endpoint => send email from support@audivity.com to edgomberg@gmail.com
+    public function contact_us($request, $response, $args)
+    {
+        $body = $request->getParsedBody();
+
+        #Init email
+        $email = $body['email'];
+
+        #Init header
+        $headers = array (
+            'From' => getenv("CONTACT"),
+            'To' => [$email, getenv("SUPPORT")],
+            'Subject' => "Query from ".$body['name']. ' ('.$email.')'
+        );
+    
+        $smtpParams = array (
+        'host' => getenv("SMPT_HOST"),
+        'port' => getenv("SMTP_PORT"),
+        'auth' => true,
+        'username' => getenv("SMTP_USERNAME"),
+        'password' => getenv("SMTP_PASSWORD")
+        );
+
+        // Create an SMTP client.
+        $mail = Mail::factory('smtp', $smtpParams);
+        
+        #Init body
+        $message .= $body['message'];
+
+        
+        // Send the email.
+        $result = $mail->send($email, $headers, $message);
+
+        if (PEAR::isError($result)) $status = "0: ".$result->getMessage();
+        
         return $response->withJson([
             'status' => 1
         ]);

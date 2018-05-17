@@ -10,6 +10,9 @@ $app->get('/about', Application\Controller\HomeController::class . ':about');
 //Register client blog post url
 $app->post('/user/url', Application\Controller\RegisterController::class . ':anonyme_url');
 
+//Contact us endpoint
+$app->post('/user/contact_us', Application\Controller\RegisterController::class . ':contact_us');
+
 //Register email & name of the client linked to a RequestID(blog post url ID)
 $app->post('/user/register_profile', Application\Controller\RegisterController::class . ':register_profile');
 
