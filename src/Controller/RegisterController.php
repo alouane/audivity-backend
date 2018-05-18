@@ -175,8 +175,39 @@ class RegisterController extends BaseController
                 'job_reference' => $job->job->reference,
                 "job_posted" => 1
             ], $id);
-        }
+
+            #Send a notification email to edgomberg@gmail.com
+            $email = "edgomberg@gmail.com";
         
+            #Init header
+            $headers = array (
+                'From' => getenv("CONTACT"),
+                'To' => $email,
+                'Subject' => "Hi ED! New BLOG conversion Request from ".$ReqUrl->company_name. ' ('.$ReqUrl->industry.')'
+            );
+        
+            $smtpParams = array (
+            'host' => getenv("SMPT_HOST"),
+            'port' => getenv("SMTP_PORT"),
+            'auth' => true,
+            'username' => getenv("SMTP_USERNAME"),
+            'password' => getenv("SMTP_PASSWORD")
+            );
+    
+            // Create an SMTP client.
+            $mail = Mail::factory('smtp', $smtpParams);
+            
+            #Init body
+            $message .= "A new blog conversion request detected from ".$ReqUrl->company_name." working in the ".$ReqUrl->industry." industry. \n" ;
+            $message .= "The blog request is: ".$ReqUrl->url."\n";
+            $message .= "The upwork job reference is: ".$job->job->reference."\n";
+            $message .= "All best, audivity bot :)";
+
+            // Send the email.
+            $result = $mail->send($email, $headers, $message);
+    
+            if (PEAR::isError($result)) $status = "0: ".$result->getMessage();
+        }        
 
         return $response->withJson([
             'status' => 1
