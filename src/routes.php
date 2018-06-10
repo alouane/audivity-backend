@@ -13,6 +13,9 @@ $app->post('/user/url', Application\Controller\RegisterController::class . ':ano
 //Contact us endpoint
 $app->post('/user/contact_us', Application\Controller\RegisterController::class . ':contact_us');
 
+//Submit Scripts endpoint
+$app->post('/user/submit_scripts', Application\Controller\ScriptController::class . ':submit_scripts');
+
 //Register email & name of the client linked to a RequestID(blog post url ID)
 $app->post('/user/register_profile', Application\Controller\RegisterController::class . ':register_profile');
 

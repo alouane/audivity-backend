@@ -252,6 +252,5 @@ class RegisterController extends BaseController
         return $response->withJson([
             'status' => 1
         ]);
-
     }
 }
